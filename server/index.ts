@@ -39,6 +39,22 @@ app.post('/api/compile', (req, res) => {
   });
 });
 
+app.get('/api/projects', (req, res) => {
+  const projectsPath = path.join(__dirname, '..');
+  fs.readdir(projectsPath, { withFileTypes: true }, (err, files) => {
+    if (err) {
+      return res.status(500).json({ message: 'Failed to read projects directory.' });
+    }
+
+    const projects = files
+      .filter(dirent => dirent.isDirectory())
+      .filter(dirent => fs.existsSync(path.join(projectsPath, dirent.name, 'package.json')))
+      .map(dirent => dirent.name);
+
+    res.json(projects);
+  });
+});
+
 app.post('/api/projects', (req, res) => {
   const { projectName } = req.body;
 
