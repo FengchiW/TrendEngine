@@ -23,6 +23,7 @@ export interface Project {
  */
 export interface AppState {
   project: Project | null;
+  projects: string[];
   gameObjects: GameObject[];
   selectedObjectId: number | null;
   scripts: string[];
@@ -32,6 +33,7 @@ export interface AppState {
  * Defines the shape of the context, including the state and the functions to update it.
  */
 export interface AppContextType extends AppState {
+  fetchProjects: () => void;
   addGameObject: (name: string) => void;
   selectGameObject: (id: number) => void;
   updateGameObjectPosition: (id: number, x: number, y: number) => void;
@@ -49,19 +51,45 @@ export const AppContext = createContext<AppContextType | null>(null);
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, setState] = useState<AppState>({
     project: null,
+    projects: [],
     gameObjects: [],
     selectedObjectId: null,
     scripts: [],
   });
 
-  const createProject = (name: string) => {
-    setState((prevState) => ({
-      ...prevState,
-      project: { name },
-      gameObjects: [],
-      selectedObjectId: null,
-      scripts: [],
-    }));
+  const fetchProjects = async () => {
+    try {
+      const response = await fetch('http://localhost:3001/api/projects');
+      const projects = await response.json();
+      setState((prevState) => ({ ...prevState, projects }));
+    } catch (error) {
+      console.error('Failed to fetch projects:', error);
+    }
+  };
+
+  const createProject = async (name: string) => {
+    try {
+      const response = await fetch('http://localhost:3001/api/projects', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ projectName: name }),
+      });
+      if (response.ok) {
+        setState((prevState) => ({
+          ...prevState,
+          project: { name },
+          gameObjects: [],
+          selectedObjectId: null,
+          scripts: [],
+        }));
+      } else {
+        console.error('Failed to create project');
+      }
+    } catch (error) {
+      console.error('Failed to create project:', error);
+    }
   };
 
   const addGameObject = (name: string) => {
@@ -107,6 +135,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     <AppContext.Provider
       value={{
         ...state,
+        fetchProjects,
         addGameObject,
         selectGameObject,
         updateGameObjectPosition,
