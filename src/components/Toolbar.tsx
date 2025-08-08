@@ -35,7 +35,7 @@ const Toolbar = () => {
 
   return (
     <>
-      <div className="bg-gray-700 p-2 flex gap-2">
+      <div className="bg-gray-700 p-2 flex gap-2" role="toolbar">
         <button className="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded">
           Create New Scene
         </button>

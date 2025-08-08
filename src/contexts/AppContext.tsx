@@ -14,7 +14,15 @@ export interface GameObject {
 /**
  * Represents the entire state of the application.
  */
+export interface Project {
+  name: string;
+}
+
+/**
+ * Represents the entire state of the application.
+ */
 export interface AppState {
+  project: Project | null;
   gameObjects: GameObject[];
   selectedObjectId: number | null;
   scripts: string[];
@@ -29,6 +37,7 @@ export interface AppContextType extends AppState {
   updateGameObjectPosition: (id: number, x: number, y: number) => void;
   addScriptToGameObject: (id: number, script: string) => void;
   addScript: (name: string) => void;
+  createProject: (name: string) => void;
 }
 
 // Create the React context.
@@ -39,10 +48,21 @@ export const AppContext = createContext<AppContextType | null>(null);
  */
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, setState] = useState<AppState>({
+    project: null,
     gameObjects: [],
     selectedObjectId: null,
-    scripts: ['PlayerController.ts', 'EnemyAI.ts'],
+    scripts: [],
   });
+
+  const createProject = (name: string) => {
+    setState((prevState) => ({
+      ...prevState,
+      project: { name },
+      gameObjects: [],
+      selectedObjectId: null,
+      scripts: [],
+    }));
+  };
 
   const addGameObject = (name: string) => {
     setState((prevState) => ({
@@ -92,6 +112,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         updateGameObjectPosition,
         addScriptToGameObject,
         addScript,
+        createProject,
       }}
     >
       {children}
