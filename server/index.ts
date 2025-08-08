@@ -4,6 +4,7 @@ import { json } from 'body-parser';
 import { compileScene, AppState } from './compiler';
 import fs from 'fs';
 import path from 'path';
+import { exec, spawn } from 'child_process';
 
 const app = express();
 const port = 3001;
@@ -36,6 +37,82 @@ app.post('/api/compile', (req, res) => {
     filePath: outputPath,
     code: compiledCode,
   });
+});
+
+app.post('/api/projects', (req, res) => {
+  const { projectName } = req.body;
+
+  if (!projectName) {
+    return res.status(400).json({ message: 'Project name is required.' });
+  }
+
+  const child = spawn('npx', ['@phaserjs/create-game@latest', projectName], {
+    stdio: 'pipe',
+    shell: true, // Use shell to ensure npx is found
+  });
+
+  child.stdout.on('data', (data) => {
+    console.log(`stdout: ${data}`);
+  });
+
+  child.stderr.on('data', (data) => {
+    console.error(`stderr: ${data}`);
+  });
+
+  child.on('close', (code) => {
+    if (code !== 0) {
+      console.error(`child process exited with code ${code}`);
+      return res.status(500).json({ message: `Failed to create project. Exit code: ${code}` });
+    }
+
+    const projectPath = path.join(__dirname, projectName);
+    const scenesPath = path.join(projectPath, 'src', 'scenes');
+
+    // Remove the default scene files
+    fs.rmSync(scenesPath, { recursive: true, force: true });
+
+    // Create the new directories
+    fs.mkdirSync(scenesPath);
+    fs.mkdirSync(path.join(projectPath, '.engine'));
+
+    res.json({ message: `Project ${projectName} created successfully!` });
+  });
+
+  // 1. Select "Web Bundler"
+  setTimeout(() => {
+    child.stdin.write('\x1B[B');
+    child.stdin.write('\x1B[B');
+    child.stdin.write('\x1B[B');
+    child.stdin.write('\n');
+  }, 1000);
+
+  // 2. Select "Vite"
+  setTimeout(() => {
+    child.stdin.write('\n');
+  }, 2000);
+
+  // 3. Select "Minimal"
+  setTimeout(() => {
+      child.stdin.write('\x1B[B');
+      child.stdin.write('\n');
+  }, 3000);
+
+  // 4. Select "TypeScript"
+  setTimeout(() => {
+    child.stdin.write('\x1B[B');
+    child.stdin.write('\n');
+  }, 4000);
+
+  // 5. Agree to telemetry
+  setTimeout(() => {
+    child.stdin.write('Y\n');
+  }, 5000);
+
+  // 6. Don't install dependencies
+  setTimeout(() => {
+    child.stdin.write('n\n');
+    child.stdin.end();
+  }, 6000);
 });
 
 // Start the server.
