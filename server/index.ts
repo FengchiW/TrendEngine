@@ -40,7 +40,10 @@ app.post('/api/compile', (req, res) => {
 });
 
 app.get('/api/projects', (req, res) => {
-  const projectsPath = path.join(__dirname, '..');
+  const projectsPath = path.join(__dirname, '..', 'projects');
+  if (!fs.existsSync(projectsPath)) {
+    fs.mkdirSync(projectsPath, { recursive: true });
+  }
   fs.readdir(projectsPath, { withFileTypes: true }, (err, files) => {
     if (err) {
       return res.status(500).json({ message: 'Failed to read projects directory.' });
@@ -62,9 +65,15 @@ app.post('/api/projects', (req, res) => {
     return res.status(400).json({ message: 'Project name is required.' });
   }
 
+  const projectsPath = path.join(__dirname, '..', 'projects');
+  if (!fs.existsSync(projectsPath)) {
+    fs.mkdirSync(projectsPath, { recursive: true });
+  }
+
   const child = spawn('npx', ['@phaserjs/create-game@latest', projectName], {
     stdio: 'pipe',
     shell: true, // Use shell to ensure npx is found
+    cwd: projectsPath,
   });
 
   child.stdout.on('data', (data) => {

@@ -1,4 +1,4 @@
-import { createContext, useState } from 'react';
+import { createContext, useCallback, useState } from 'react';
 
 /**
  * Represents a single game object in the scene.
@@ -57,7 +57,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     scripts: [],
   });
 
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     try {
       const response = await fetch('http://localhost:3001/api/projects');
       const projects = await response.json();
@@ -65,7 +65,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error) {
       console.error('Failed to fetch projects:', error);
     }
-  };
+  }, []);
 
   const createProject = async (name: string) => {
     try {
