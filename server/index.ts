@@ -5,6 +5,8 @@ import { compileScene, AppState } from './compiler';
 import fs from 'fs';
 import path from 'path';
 import { exec, spawn } from 'child_process';
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpec from './swagger';
 
 const app = express();
 const port = 3001;
@@ -15,8 +17,34 @@ app.use(cors());
 app.use(json());
 
 /**
- * API endpoint to compile a scene.
- * Expects a POST request with the scene state in the request body.
+ * @swagger
+ * /api/compile:
+ *   post:
+ *     summary: Compile a scene
+ *     description: Compiles the given scene state and returns the compiled code.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               scene:
+ *                 type: object
+ *     responses:
+ *       200:
+ *         description: Scene compiled successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 filePath:
+ *                   type: string
+ *                 code:
+ *                   type: string
  */
 app.post('/api/compile', (req, res) => {
   // Get the scene state from the request body.
@@ -39,6 +67,24 @@ app.post('/api/compile', (req, res) => {
   });
 });
 
+/**
+ * @swagger
+ * /api/projects:
+ *   get:
+ *     summary: Get all projects
+ *     description: Returns a list of all project names.
+ *     responses:
+ *       200:
+ *         description: A list of projects
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: string
+ *       500:
+ *         description: Failed to read projects directory
+ */
 app.get('/api/projects', (req, res) => {
   const projectsPath = path.join(__dirname, '..', 'projects');
   if (!fs.existsSync(projectsPath)) {
@@ -58,6 +104,30 @@ app.get('/api/projects', (req, res) => {
   });
 });
 
+/**
+ * @swagger
+ * /api/projects:
+ *   post:
+ *     summary: Create a new project
+ *     description: Creates a new Phaser project with the given name.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               projectName:
+ *                 type: string
+ *                 description: The name of the project to create.
+ *     responses:
+ *       200:
+ *         description: Project created successfully
+ *       400:
+ *         description: Project name is required
+ *       500:
+ *         description: Failed to create project
+ */
 app.post('/api/projects', (req, res) => {
   const { projectName } = req.body;
 
@@ -125,6 +195,7 @@ app.post('/api/projects', (req, res) => {
 
 });
 
+
 const recursivelyListFiles = (dir: string, baseDir: string): string[] => {
   const dirents = fs.readdirSync(dir, { withFileTypes: true });
   const fileList = dirents.flatMap((dirent) => {
@@ -171,6 +242,9 @@ app.get('/api/projects/:projectName/scenes', (req, res) => {
     res.status(500).json({ message: 'Failed to list scenes.' });
   }
 });
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 
 // Start the server.
 app.listen(port, () => {
