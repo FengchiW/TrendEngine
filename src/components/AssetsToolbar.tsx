@@ -9,7 +9,7 @@ const AssetsToolbar = () => {
     if (project) {
       fetch(`http://localhost:3001/api/projects/${project.name}/assets`)
         .then((res) => res.json())
-        .then((data) => setAssets(data.assets))
+        .then((data) => setAssets(data))
         .catch((err) => console.error('Failed to fetch assets:', err));
     }
   }, [project]);

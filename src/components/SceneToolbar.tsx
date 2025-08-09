@@ -9,7 +9,7 @@ const SceneToolbar = () => {
     if (project) {
       fetch(`http://localhost:3001/api/projects/${project.name}/scenes`)
         .then((res) => res.json())
-        .then((data) => setScenes(data.scenes))
+        .then((data) => setScenes(data))
         .catch((err) => console.error('Failed to fetch scenes:', err));
     }
   }, [project]);
