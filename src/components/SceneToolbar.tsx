@@ -7,9 +7,9 @@ const SceneToolbar = () => {
 
   useEffect(() => {
     if (project) {
-      fetch(`http://localhost:3001/api/projects/${project}/scenes`)
+      fetch(`http://localhost:3001/api/projects/${project.name}/scenes`)
         .then((res) => res.json())
-        .then((data) => setScenes(data))
+        .then((data) => setScenes(data.scenes))
         .catch((err) => console.error('Failed to fetch scenes:', err));
     }
   }, [project]);
@@ -18,9 +18,8 @@ const SceneToolbar = () => {
     <div className="bg-gray-800 p-2">
       <h2 className="text-lg font-bold mb-2">Scenes</h2>
       <ul>
-        {scenes.map((scene) => (
-          <li key={scene}>{scene}</li>
-        ))}
+        {scenes &&
+          scenes.map((scene) => <li key={scene}>{scene}</li>)}
       </ul>
     </div>
   );
