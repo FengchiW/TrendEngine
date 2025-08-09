@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { AppContext, AppContextType } from '../contexts/AppContext';
 
 const ProjectSelection = () => {
-  const { projects, fetchProjects, createProject } = useContext(AppContext) as AppContextType;
+  const { projects, fetchProjects, createProject, selectProject } = useContext(AppContext) as AppContextType;
   const [projectName, setProjectName] = useState('');
 
   useEffect(() => {
@@ -39,7 +39,11 @@ const ProjectSelection = () => {
           <h2 className="text-2xl font-bold mb-4">Select Project</h2>
           <ul>
             {projects.map((project) => (
-              <li key={project} className="p-2 hover:bg-gray-600 cursor-pointer">
+              <li
+                key={project}
+                className="p-2 hover:bg-gray-600 cursor-pointer"
+                onClick={() => selectProject(project)}
+              >
                 {project}
               </li>
             ))}
