@@ -40,6 +40,7 @@ export interface AppContextType extends AppState {
   addScriptToGameObject: (id: number, script: string) => void;
   addScript: (name: string) => void;
   createProject: (name: string) => void;
+  selectProject: (name: string) => void;
 }
 
 // Create the React context.
@@ -92,7 +93,17 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const addGameObject = (name: string) => {
+    const selectProject = (name: string) => {
+      setState((prevState) => ({
+        ...prevState,
+        project: { name },
+        gameObjects: [],
+        selectedObjectId: null,
+        scripts: [],
+      }));
+    };
+
+    const addGameObject = (name:string) => {
     setState((prevState) => ({
       ...prevState,
       gameObjects: [
@@ -142,6 +153,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         addScriptToGameObject,
         addScript,
         createProject,
+          selectProject,
       }}
     >
       {children}
