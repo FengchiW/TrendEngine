@@ -41,3 +41,31 @@ This project is split into two parts: a frontend client and a backend server.
     npm run dev
     ```
     The client will be running on `http://localhost:5173` by default (check your terminal for the exact URL).
+
+## Testing
+
+This project includes tests for both the backend and frontend.
+
+### Backend (Server)
+
+1.  **Navigate to the server directory:**
+    ```bash
+    cd server
+    ```
+
+2.  **Run the tests:**
+    ```bash
+    npm test
+    ```
+
+### Frontend (Client)
+
+1.  **Navigate to the root directory:**
+    ```bash
+    cd .
+    ```
+
+2.  **Run the Cypress tests:**
+    ```bash
+    npm run cypress:run
+    ```
