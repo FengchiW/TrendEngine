@@ -90,16 +90,6 @@ app.post('/api/projects', (req, res) => {
       return res.status(500).json({ message: `Failed to create project. Exit code: ${code}` });
     }
 
-    const projectPath = path.join(__dirname, projectName);
-    const scenesPath = path.join(projectPath, 'src', 'scenes');
-
-    // Remove the default scene files
-    fs.rmSync(scenesPath, { recursive: true, force: true });
-
-    // Create the new directories
-    fs.mkdirSync(scenesPath);
-    fs.mkdirSync(path.join(projectPath, '.engine'));
-
     res.json({ message: `Project ${projectName} created successfully!` });
   });
 
@@ -133,11 +123,6 @@ app.post('/api/projects', (req, res) => {
     child.stdin.write('Y\n');
   }, 5000);
 
-  // 6. Don't install dependencies
-  setTimeout(() => {
-    child.stdin.write('n\n');
-    child.stdin.end();
-  }, 6000);
 });
 
 // Start the server.
