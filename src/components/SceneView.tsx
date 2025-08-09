@@ -1,25 +1,8 @@
 import React, { useEffect, useRef, useContext, useState } from 'react';
 import Phaser from 'phaser';
 
-// Note: Assuming AppContext and AppContextType are correctly defined.
-// import { AppContext, AppContextType } from '../contexts/AppContext';
+import { AppContext, AppContextType } from '../contexts/AppContext';
 
-// Mocking AppContext for a self-contained example
-// In a real application, you would remove this and use your actual context.
-const mockGameObjects = [
-  { id: 1, name: 'Object 1', x: 50, y: 50 },
-  { id: 2, name: 'Object 2', x: 150, y: 150 },
-];
-const mockSelectGameObject = (id: number) => console.log(`Selected object: ${id}`);
-const mockUpdateGameObjectPosition = (id: number, x: number, y: number) => console.log(`Updated object ${id} to (${x}, ${y})`);
-
-const AppContext = React.createContext({
-  gameObjects: mockGameObjects,
-  selectGameObject: mockSelectGameObject,
-  updateGameObjectPosition: mockUpdateGameObjectPosition,
-});
-type AppContextType = typeof AppContext extends React.Context<infer T> ? T : never;
-// End of mocking
 
 const SceneView = () => {
   // Use a state to hold the Phaser scene instance. This is crucial for
