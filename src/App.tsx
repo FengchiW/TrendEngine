@@ -6,6 +6,8 @@ import InspectorPanel from './components/InspectorPanel';
 import ProjectPanel from './components/ProjectPanel';
 import { AppContext, AppContextType } from './contexts/AppContext';
 import ProjectSelection from './components/ProjectSelection';
+import SceneToolbar from './components/SceneToolbar';
+import AssetsToolbar from './components/AssetsToolbar';
 
 function App() {
   const { project } = useContext(AppContext) as AppContextType;
@@ -21,6 +23,7 @@ function App() {
         <div className="w-1/5 min-w-[200px] flex flex-col">
           <HierarchyPanel />
           <ProjectPanel />
+          <SceneToolbar />
         </div>
         <div className="w-3/5">
           <SceneView />
@@ -29,6 +32,7 @@ function App() {
           <InspectorPanel />
         </div>
       </div>
+      <AssetsToolbar />
     </div>
   );
 }
