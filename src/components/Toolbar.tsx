@@ -1,6 +1,8 @@
 import { useContext, useState } from 'react';
 import { AppContext, AppContextType } from '../contexts/AppContext';
 import Modal from './Modal';
+import SceneToolbar from './SceneToolbar';
+import AssetsToolbar from './AssetsToolbar';
 
 /**
  * The toolbar component at the top of the editor.
@@ -10,6 +12,8 @@ const Toolbar = () => {
   const appState = useContext(AppContext) as AppContextType;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [compiledCode, setCompiledCode] = useState('');
+  const [showSceneToolbar, setShowSceneToolbar] = useState(false);
+  const [showAssetsToolbar, setShowAssetsToolbar] = useState(false);
 
   /**
    * Handles the "Build Project" button click.
@@ -36,8 +40,17 @@ const Toolbar = () => {
   return (
     <>
       <div className="bg-gray-700 p-2 flex gap-2" role="toolbar">
-        <button className="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded">
-          Create New Scene
+        <button
+          onClick={() => setShowSceneToolbar(!showSceneToolbar)}
+          className="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded"
+        >
+          Scene
+        </button>
+        <button
+          onClick={() => setShowAssetsToolbar(!showAssetsToolbar)}
+          className="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded"
+        >
+          Assets
         </button>
         <button
           onClick={handleBuild}
@@ -46,6 +59,8 @@ const Toolbar = () => {
           Build Project
         </button>
       </div>
+      {showSceneToolbar && <SceneToolbar />}
+      {showAssetsToolbar && <AssetsToolbar />}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
