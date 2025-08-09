@@ -195,7 +195,56 @@ app.post('/api/projects', (req, res) => {
 
 });
 
+
+const recursivelyListFiles = (dir: string, baseDir: string): string[] => {
+  const dirents = fs.readdirSync(dir, { withFileTypes: true });
+  const fileList = dirents.flatMap((dirent) => {
+    const resolvedPath = path.resolve(dir, dirent.name);
+    if (dirent.isDirectory()) {
+      return recursivelyListFiles(resolvedPath, baseDir);
+    }
+    return path.relative(baseDir, resolvedPath);
+  });
+  return fileList;
+};
+
+app.get('/api/projects/:projectName/assets', (req, res) => {
+  const { projectName } = req.params;
+  const assetsPath = path.join(__dirname, '..', 'projects', projectName, 'public', 'assets');
+
+  if (!fs.existsSync(assetsPath)) {
+    return res.status(404).json({ message: 'Assets directory not found.' });
+  }
+
+  try {
+    const assetFiles = recursivelyListFiles(assetsPath, assetsPath);
+    res.json(assetFiles);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to list assets.' });
+  }
+});
+
+app.get('/api/projects/:projectName/scenes', (req, res) => {
+  const { projectName } = req.params;
+  const scenesPath = path.join(__dirname, '..', 'projects', projectName, 'src', 'game', 'scenes');
+
+  if (!fs.existsSync(scenesPath)) {
+    return res.status(404).json({ message: 'Scenes directory not found.' });
+  }
+
+  try {
+    const sceneFiles = fs.readdirSync(scenesPath)
+      .filter(file => file.endsWith('.scene'));
+    res.json(sceneFiles);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to list scenes.' });
+  }
+});
+
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 
 // Start the server.
 app.listen(port, () => {
