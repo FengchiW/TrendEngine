@@ -160,6 +160,17 @@ app.post('/api/projects', (req, res) => {
       return res.status(500).json({ message: `Failed to create project. Exit code: ${code}` });
     }
 
+    // Create a default .scene file
+    const sceneDir = path.join(projectsPath, projectName, 'src', 'game', 'scenes');
+    fs.mkdirSync(sceneDir, { recursive: true });
+    const sceneFilePath = path.join(sceneDir, 'Game.scene');
+    const defaultSceneContent = {
+      gameObjects: [],
+      selectedObjectId: null,
+      scripts: [],
+    };
+    fs.writeFileSync(sceneFilePath, JSON.stringify(defaultSceneContent, null, 2));
+
     res.json({ message: `Project ${projectName} created successfully!` });
   });
 
