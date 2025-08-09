@@ -136,32 +136,22 @@ app.post('/api/projects', (req, res) => {
   }
 
   const projectsPath = path.join(__dirname, '..', 'projects');
-  if (!fs.existsSync(projectsPath)) {
-    fs.mkdirSync(projectsPath, { recursive: true });
+  const projectPath = path.join(projectsPath, projectName);
+  const templatePath = path.join(__dirname, '..', 'templates', 'phaser-template');
+
+  if (fs.existsSync(projectPath)) {
+    return res.status(400).json({ message: 'Project already exists.' });
   }
 
-  const child = spawn('npx', ['@phaserjs/create-game@latest', projectName], {
-    stdio: 'pipe',
-    shell: true, // Use shell to ensure npx is found
-    cwd: projectsPath,
-  });
+  if (!fs.existsSync(templatePath)) {
+    return res.status(500).json({ message: 'Template not found.' });
+  }
 
-  child.stdout.on('data', (data) => {
-    console.log(`stdout: ${data}`);
-  });
-
-  child.stderr.on('data', (data) => {
-    console.error(`stderr: ${data}`);
-  });
-
-  child.on('close', (code) => {
-    if (code !== 0) {
-      console.error(`child process exited with code ${code}`);
-      return res.status(500).json({ message: `Failed to create project. Exit code: ${code}` });
-    }
+  try {
+    fs.cpSync(templatePath, projectPath, { recursive: true });
 
     // Create a default .scene file
-    const sceneDir = path.join(projectsPath, projectName, 'src', 'game', 'scenes');
+    const sceneDir = path.join(projectPath, 'src', 'game', 'scenes');
     fs.mkdirSync(sceneDir, { recursive: true });
     const sceneFilePath = path.join(sceneDir, 'Game.scene');
     const defaultSceneContent = {
@@ -172,38 +162,10 @@ app.post('/api/projects', (req, res) => {
     fs.writeFileSync(sceneFilePath, JSON.stringify(defaultSceneContent, null, 2));
 
     res.json({ message: `Project ${projectName} created successfully!` });
-  });
-
-  // 1. Select "Web Bundler"
-  setTimeout(() => {
-    child.stdin.write('\x1B[B');
-    child.stdin.write('\x1B[B');
-    child.stdin.write('\x1B[B');
-    child.stdin.write('\n');
-  }, 1000);
-
-  // 2. Select "Vite"
-  setTimeout(() => {
-    child.stdin.write('\n');
-  }, 2000);
-
-  // 3. Select "Minimal"
-  setTimeout(() => {
-      child.stdin.write('\x1B[B');
-      child.stdin.write('\n');
-  }, 3000);
-
-  // 4. Select "TypeScript"
-  setTimeout(() => {
-    child.stdin.write('\x1B[B');
-    child.stdin.write('\n');
-  }, 4000);
-
-  // 5. Agree to telemetry
-  setTimeout(() => {
-    child.stdin.write('Y\n');
-  }, 5000);
-
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to create project.' });
+  }
 });
 
 
